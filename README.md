@@ -1,9 +1,9 @@
-# Kohana 3.x Log Viewer module
+# Kohana 3.3 Log Viewer module
 ## A Kohana module for exploring log files
 
 ### Disclaimer
 
-This module forks original one from https://github.com/ajaxray adding suport for Kohana's 3.2 log file format, which includes stack trace
+This module forks the one from https://github.com/ajaxray and patches it up to actually work...
 
 ### Installation:
 
@@ -22,7 +22,6 @@ It's completely self explanatory. Here are some points for quick refs -
 - Left sidebar has a list of available log files in selected month
 - If not specified, today's (current month and day) log file will be displayed
 - If you want to see a fresh log for next call, just delete today's file. Kohana will generate it and add 
-- Formatted mode (default) may not extract all info correctly for displaying in rows. Use **raw mode** for those situations. _NEED IMPROVEMENT_ here. 
 - You can use *Level* listbox for filtering by log levels.
 
 ### Notes:

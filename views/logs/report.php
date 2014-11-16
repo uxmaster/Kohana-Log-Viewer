@@ -1,5 +1,5 @@
 <?php
-	$mode = isset($_GET['mode']) ? $_GET['mode'] : 'raw';
+	$mode = isset($_GET['mode']) ? $_GET['mode'] : 'formatted';
 ?>
 
 <h2><?php echo $header ?></h2>
@@ -25,7 +25,7 @@
             <?php else: ?>
             <a class="btn info" href="?mode=raw">raw mode</a>
             <?php endif; ?>
-            <a class="btn danger" href="<?php echo URL::site("logs/delete/$active_month/$active_report") ?>" onclick="return confirm('Are you sure to delete?')">delete this file</a>
+            <a class="btn danger" href="<?php echo URL::site("logs/delete/$active_month/$active_day") ?>" onclick="return confirm('Are you sure to delete?')">delete this file</a>
         </form>
     </div>
     <table class="zebra-striped" width="100%">
@@ -52,7 +52,7 @@
                 <td><?php echo Arr::get($log,'file') ?></td>
 
             </tr>
-            <tr><td colspan="4"><b>Message: </b><?php echo Arr::get($log,'message') ?></td></tr>
+            <tr><td colspan="3"><b>Message: </b><?php echo Arr::get($log,'message') ?></td></tr>
             <?php else: // Raw mode ?>
             <tr>
                 <td>

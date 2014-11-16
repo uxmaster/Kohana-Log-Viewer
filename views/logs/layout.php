@@ -25,12 +25,7 @@
         <div class="container">
           <div class="row">
               <div class="span12">
-                <h1>Kohana Log Viewer</h1>
-              </div>
-              <div class="span4">
-                <span class="pull-right utility">
-                    <a href="#">Settings</a>
-                </span>
+		<h1><?php echo HTML::anchor('logs', 'Kohana Log Viewer') ?></h1>
               </div>
           </div>
         </div>

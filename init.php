@@ -4,7 +4,7 @@
 if (defined("PHP_SAPI") && PHP_SAPI == 'cli')
 	return;
 
-Route::set('logdelete', 'logs/delete/<year>/<month>/<logfile>', array('logfile' => '.*'))
+Route::set('logdelete', 'logs/delete/<year>/<month>/<day>', array('day' => '.*'))
 	->defaults(array(
 		'controller' => 'Logs',
 		'action'     => 'delete',

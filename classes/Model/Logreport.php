@@ -35,15 +35,17 @@ class Model_Logreport{
 
     protected function _createLogEntries()
     {
-    	$pattern = "/(.*?) --- ([A-Z]*): (?:(?:([^:]*): ([^~]*)~ (.*))|(.*))/";
+	$pattern = "/(.*) --- ([A-Z]*): ([^:]*):? ([^~]*)~ (.*) in (.*)/";
+	$pattern2 = "/(.*) --- ([A-Z]*): ([^:]*):? ?(.*)/";
         $last_log = null;
 		$message = '';
 		$start_trace = false;
 		$i = 0;
         foreach($this->_rawContent as $logRaw) {
+			$matches = false;
 			$logRaw = trim($logRaw);
-			if (empty($logRaw)) continue;
-			if ($logRaw != '--' && $logRaw[0] != '#' && stripos($logRaw, 'STRACE') === FALSE) {
+			if (empty($logRaw) || $logRaw == '--') continue;
+			if ($logRaw[0] != '#' && $logRaw[0] != ' ' && stripos($logRaw, ': #') === FALSE && stripos($logRaw, 'STRACE') === FALSE) {
 				preg_match($pattern, $logRaw, $matches);
 
 				$log = array();
@@ -52,35 +54,64 @@ class Model_Logreport{
 					$log['time'] = strtotime($matches[1]);
 					$log['level'] = $matches[2];    // Notice, Error etc.
 					$log['style'] = $this->_getStyle($matches[2]);    // CSS class for styling
-					if (isset($matches[6])) {
-						$log['type'] = $log['file'] = '';
-						$log['message'] = isset($matches[6]) ? $matches[6] : '';
-					}
-					else {
+					$log['type'] = $matches[3];     // Exception name
+					$log['message'] = $matches[4];
+					$log['file'] = $matches[5];
+				} else
+				{
+					preg_match($pattern2, $logRaw, $matches);
+					if($matches) { 
+						$log['time'] = strtotime($matches[1]);
+						$log['level'] = $matches[2];    // Notice, Error etc.
+						$log['style'] = $this->_getStyle($matches[2]);    // CSS class for styling
 						$log['type'] = $matches[3];     // Exception name
-						$log['message'] = $matches[4];
-						$log['file'] = $matches[5];
+						preg_match("/(.*) (?:in)?~? (\/?.*)/", $matches[4], $matches_f);
+						if ($matches_f) {
+							$log['file'] = $matches_f[2];
+							$matches[4] = $matches_f[1];
+						}
+						else {
+							$log['file'] = '';
+						}
+						$log['message'] = '<p style="font-family:monospace;font-size:8pt">' . $matches[4];
+
 					}
 				}
 
-				$this->_logEntries[] = $log;
-				$last_log = $i;
-				$i++;
+				if ($matches) {
+					$this->_logEntries[] = $log;
+					$last_log = $i;
+					$i++;
+				}
 			}
 			
-			if (stripos($logRaw, 'STRACE') !== FALSE) {
+			if (stripos($logRaw, ': #') !== FALSE || stripos($logRaw, 'STRACE') !== FALSE) {
+				$logRaw = preg_replace('/.*: #/', '#', $logRaw);
 				$message = Arr::get($this->_logEntries[$last_log], 'message');
-				$this->_logEntries[$last_log]['message'] =  $message . '<br/><br/><p>Stack Trace:</p><ol style="font-family:consolas;font-size:8pt">';
+				$this->_logEntries[$last_log]['message'] =  $message . '<br/><br/><p>Stack Trace:</p><ol style="font-family:monospace;font-size:8pt">';
+				$matches = true;
 			}
-			
+
 			if ($logRaw[0] == '#') {
-				$logRaw = preg_replace('/#\d /', '', $logRaw);
+				$this->_logEntries[$last_log]['raw'] .= '<br />'.$logRaw;
+				$logRaw = preg_replace('/#\d* /', '', $logRaw);
 				$this->_logEntries[$last_log]['message'] .= '<li>'.$logRaw . '</li>';
+				if (preg_match('/\{main\}/', $logRaw)) {
+					$this->_logEntries[$last_log]['message'] .= '</ol>';
+				}
+				$matches = true;
 			}
-			
-			if (preg_match('/\{main\}/', $logRaw)) {
-				$this->_logEntries[$last_log]['message'] .= '</ol>';
+
+			if (!$matches) {
+				$this->_logEntries[$last_log]['raw'] .= '<br />'.$logRaw;
+				preg_match("/(.*) in (\/.*)/", $logRaw, $matches);
+				if ($matches) {
+					$this->_logEntries[$last_log]['file'] = $matches[2];
+					$logRaw = $matches[1];
+				}
+				$this->_logEntries[$last_log]['message'] .= '<br />'.$logRaw . '';
 			}
+
         }
     }
 

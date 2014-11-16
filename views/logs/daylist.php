@@ -1,5 +1,5 @@
 <?php
-	$mode = isset($_GET['mode']) ? $_GET['mode'] : 'raw';
+	$mode = isset($_GET['mode']) ? $_GET['mode'] : 'formatted';
 ?>
 <ul class="pills">
     <?php foreach($days as $day): ?>

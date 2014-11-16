@@ -18,9 +18,10 @@ class Controller_Logs extends Controller {
         $this->layout = new View('logs/layout');
         $this->_logDir = Kohana::$config->load('logviewer.log_path');
 
-        $this->_year = $this->request->param('year', date('Y') );
-        $this->_month = $this->request->param('month', date('m'));
-        $this->_day = $this->request->param('day', date('d'));
+        $today = getdate();
+	$this->_year = $this->request->param('year', date('Y') );
+	$this->_month = $this->request->param('month', date('m'));
+	$this->_day = $this->request->param('day', date('d'));
         $this->_level = $this->request->param('level', null);
     }
 
@@ -29,7 +30,7 @@ class Controller_Logs extends Controller {
         //echo "$this->_year/$this->_month/$this->_day/$this->_level";
 
 		if (!$this->request->query('mode')) 
-			$this->redirect($this->request->uri().'?mode=raw');		
+			$this->redirect($this->request->uri().'?mode=formatted');		
 		
         if($this->_getMonths()){
             $this->_setLayoutVars();
@@ -44,7 +45,7 @@ class Controller_Logs extends Controller {
 
     public function action_delete()
     {
-        $logfile = "/$this->_year/$this->_month/" . $this->request->param('logfile');
+        $logfile = "/$this->_year/$this->_month/" . $this->request->param('day') . '.php';
 
         if(@unlink($this->_logDir .'/'. $logfile)){
             $this->layout->set('content', $this->_createMessage("<b>File deleted successfully!</b>", 'success' ));
